@@ -1,0 +1,213 @@
+Exp HDFS command
+
+Create a text file with some content in Desktop
+cd Desktop
+mkdir EXP01
+cd EXP01
+gedit exp.txt
+(add text in the file) save
+cat exp.txt (display content)
+
+Open new terminal
+To put file in hadoop
+hadoop fs -ls /user
+hadoop fs -mkdir /user/EXP001
+hadoop fs -ls /user (to check whether folder is create or not)
+
+hadoop fs -put /home/cloudera/Desktop/EXP01/exp.txt /user/EXP001
+
+hadoop fs -ls /user/EXP001 (to check the file is uploaded or not)
+
+To get file from hadoop
+
+create a new folder in Desktop
+mkdir EXPR01
+cd EXPR01
+hadoop fs -get /user/EXP001/exp.txt /home/cloudera/Desktop/EXPR01
+ls
+
+
+WORDCOUNT
+
+Open Eclipse create a new java project (WordCount)
+Click next >> Libraries
+Add external jars /Filesystem/usr/lib/hadoop  >> select all jar files
+Add external jars /Filesystem/usr/lib/hadoop/client >> select all jar files
+
+Finish
+src/new/class  >>Wordcount >>Finish
+Copy java program
+
+Export the wordcount/java/jarfile (Next)  export the jar file in /home/cloudera (package explorer)
+
+cd Desktop
+mkdir EXP01
+cd EXP01
+gedit exp.txt
+cat exp.txt
+////Enter repeated words
+
+hadoop fs -ls /user
+hadoop fs -mkdir /user/EXP001
+hadoop fs -put /home/cloudera/Desktop/EXP01/exp.txt /user/EXP001
+
+hadoop fs -ls /user/EXP001 (to check the file is uploaded or not)
+
+hadoop jar /home/cloudera/WordCount.jar WordCount /user/EXP001/exp.txt /output
+hadoop fs -ls /output
+
+hadoop fs -cat /output/part-r-00000
+
+//CODE
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+public class WordCount {
+
+  public static class TokenizerMapper
+       extends Mapper<Object, Text, Text, IntWritable>{
+
+    private final static IntWritable one = new IntWritable(1);
+    private Text word = new Text();
+
+    public void map(Object key, Text value, Context context
+                    ) throws IOException, InterruptedException {
+      StringTokenizer itr = new StringTokenizer(value.toString());
+      while (itr.hasMoreTokens()) {
+        word.set(itr.nextToken());
+        context.write(word, one);
+      }
+    }
+  }
+
+  public static class IntSumReducer
+       extends Reducer<Text,IntWritable,Text,IntWritable> {
+    private IntWritable result = new IntWritable();
+
+    public void reduce(Text key, Iterable<IntWritable> values,
+                       Context context
+                       ) throws IOException, InterruptedException {
+      int sum = 0;
+      for (IntWritable val : values) {
+        sum += val.get();
+      }
+      result.set(sum);
+      context.write(key, result);
+    }
+  }
+
+  public static void main(String[] args) throws Exception {
+    Configuration conf = new Configuration();
+    Job job = Job.getInstance(conf, "word count");
+    job.setJarByClass(WordCount.class);
+    job.setMapperClass(TokenizerMapper.class);
+    job.setCombinerClass(IntSumReducer.class);
+    job.setReducerClass(IntSumReducer.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
+    FileInputFormat.addInputPath(job, new Path(args[0]));
+    FileOutputFormat.setOutputPath(job, new Path(args[1]));
+    System.exit(job.waitForCompletion(true) ? 0 : 1);
+  }
+}
+
+
+Implementation of Flajolet martin algorithm:
+//Code
+
+stream=[1,2,3,4,5,6,4,2,5,9,1,6,3,7,1,2,2,4,2,1]
+print('Using Flajolet Martin Algorithm:')
+
+maxnum=0
+for i in range(0,len(stream)):
+    val= bin((1*stream[i] + 6) % 32)[2:]
+    
+    sum=0
+    for j in range(len(val)-1,0,-1):
+        
+        if val[j]=='0':
+            sum+=1
+        else:
+            break
+    if sum>maxnum:
+        maxnum=sum
+        
+print('distict elements', 2**maxnum)
+
+R programming
+m = matrix(, nrow = 10, ncol = 5)
+print("Empty matrix of 10 rows and 5 columns:")
+print(m)
+
+M = matrix(c(1:16), nrow = 4, byrow = TRUE)
+print("Original Matrix:")
+print(M)
+
+row_names = c("row1", "row2", "row3", "row4")
+col_names = c("col1", "col2", "col3", "col4")
+M = matrix(c(1:16), nrow = 4, byrow = TRUE, dimnames = list(row_names, col_names))
+print("Original Matrix:")
+print(M)
+
+Write a R program to access the element at 3rd column and 2nd row, only the 3rd row and only the 4th column of a given matrix.
+row_names = c("row1", "row2", "row3", "row4")
+col_names = c("col1", "col2", "col3", "col4")
+M = matrix(c(1:16), nrow = 4, byrow = TRUE, dimnames = list(row_names, col_names))
+print("Original Matrix:")
+print(M)
+print("Access the element at 3rd column and 2nd row:")
+print(M[2,3])
+print("Access only the  3rd row:")
+print(M[3,])
+print("Access only the 4th column:")
+print(M[,4])
+
+# Create two 2x3 matrixes.
+m1 = matrix(c(1, 2, 3, 4, 5, 6), nrow = 2)
+print("Matrix-1:")
+print(m1)
+m2 = matrix(c(0, 1, 2, 3, 0, 2), nrow = 2)
+print("Matrix-2:")
+print(m2)
+
+result = m1 + m2
+print("Result of addition")
+print(result)
+
+result = m1 - m2
+print("Result of subtraction")
+print(result)
+
+result = m1 * m2
+print("Result of multiplication")
+print(result)
+
+result = m1 / m2
+print("Result of division:")
+print(result)
+
+m=matrix(1:12,3,4)
+print("Original matrix:")
+print(m)
+a = as.vector(m)
+print("1 dimensional array:")
+print(a)
+
+print("Two vectors of different lengths:")
+v1 =  c(1,3,4,5)
+v2 =  c(10,11,12,13,14,15)
+print(v1)
+print(v2)
+result = array(c(v1,v2),dim = c(3,3,2))
+print("New array:")
+print(result)
